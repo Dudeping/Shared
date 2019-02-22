@@ -1,0 +1,150 @@
+﻿@model IEnumerable<ShareWeb.Models.User>
+@{
+    ViewBag.Title = "作者管理";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    MarkdownSharp.Markdown markDown = new MarkdownSharp.Markdown();
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-list fa-fw"></i> 作者列表
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>用户名</th>
+                                <th>昵称</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    @if (item.Introduce == "该用户因为行为恶劣违反本站相关约定已被删除!")
+                                    {
+
+                                        <td style="color:red;">@item.Id</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.Id</td>
+                                    }
+                                    <td>@item.Email</td>
+                                    <td>@item.NickName</td>
+                                    <td>
+                                        <a href="#" data-toggle="modal" data-target="#myModal@(item.Id)"><i class="fa fa-eye fa-fw"></i></a>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="myModal@(item.Id)" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        <h4 class="modal-title" id="myModalLabel">详情 #1</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>名称</th>
+                                                                        <th>描述</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>简介</td>
+                                                                        <td>@Html.Raw(item.Introduce == null ? "" : markDown.Transform(item.Introduce))</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>QQ</td>
+                                                                        <td>@item.QQ</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Tel</td>
+                                                                        <td>@item.Tel</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>微信</td>
+                                                                        <td>@item.WeChat</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>微博</td>
+                                                                        <td><a href="@(item.MicroBlog)" target="_blank">@(item.MicroBlog)</a></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>博客</td>
+                                                                        <td><a href="@(item.Blog)" target="_blank">@(item.Blog)</a></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>GitHub</td>
+                                                                        <td><a href="@(item.GitHub)" target="_blank">@(item.GitHub)</a></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">关闭</button>
+                                                    </div>
+                                                </div>
+                                                <!-- /.modal-content -->
+                                            </div>
+                                            <!-- /.modal-dialog -->
+                                        </div>
+                                        @Ajax.ActionLink("1", "DeleteAuthor", new { id = item.Id }, new AjaxOptions { AllowCache = false, Confirm = "你确定要删除该作者么?", HttpMethod = "Post", LoadingElementDuration = 500, LoadingElementId = "handleDiv", OnFailure = "DeleteAuthorFailure", OnSuccess = "DeleteAuthorSuccess" }, new { @class = "aText" })
+                                    </td>
+                                </tr>
+                            }
+                            @if(Model.Count() == 0)
+                            {
+                                <tr><td style="color:red;text-align:center;" colspan="4">暂无作者</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-bar-chart-o fa-fw"></i> 说明
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                null
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+</div>
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    
+    <script>
+        function DeleteAuthorFailure() {
+            alert("操作失败!请重试.");
+        }
+        function DeleteAuthorSuccess() {
+            alert("删除成功!");
+            location.href = "/Admin/AuthorList";
+        }
+    </script>
+
+    <script>
+        $(function () {
+            $(".aText").html("<i class=\"fa fa-trash-o fa-fw\"></i>");
+        });
+    </script>
+}

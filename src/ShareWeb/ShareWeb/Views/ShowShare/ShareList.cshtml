@@ -1,0 +1,26 @@
+﻿@model PagedList.IPagedList<ShareWeb.Models.ShareModel>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="row">
+            @Html.Partial("_PartialShareList", Model)
+        </div>
+        <!-- /.row -->
+    </div>
+
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="glyphicon glyphicon-paperclip fa-fw"></i> 温馨提示
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                @(ViewBag.Title=="站长原创"? "这里的都是作者原创的程序，大家可以随意下载！": "很多模板可能并没有开源，请注意版权问题！")
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-4 -->
+</div>
+

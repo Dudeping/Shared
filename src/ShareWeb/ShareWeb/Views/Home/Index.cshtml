@@ -1,0 +1,202 @@
+﻿@model ShareWeb.Models.WebConfig
+@{
+    ViewBag.Title = "网站首页";
+    Layout = "~/Views/Shared/_LayoutFront.cshtml";
+    MarkdownSharp.Markdown markDown = new MarkdownSharp.Markdown();
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-calendar fa-fw"></i> 网站介绍
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h3>网站简介</h3>
+                        <blockquote style="font-size:medium">
+                            <p>@Html.Raw(markDown.Transform(Model.Introduce))</p>
+                        </blockquote>
+                        <h3>网站用途</h3>
+                        <blockquote style="font-size:medium">
+                            <p>@Html.Raw(markDown.Transform(Model.Use))</p>
+                        </blockquote>
+                        <h3>使用简介</h3>
+                        <blockquote style="font-size:medium">
+                            <p>@Html.Raw(markDown.Transform(Model.Method))</p>
+                        </blockquote>
+                        <h3>网站特点</h3>
+                        <blockquote style="font-size:medium">
+                            <p>@Html.Raw(markDown.Transform(Model.Point))</p>
+                        </blockquote>
+                    </div>
+                    <!-- /.col-lg-8 (nested) -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-clock-o fa-fw"></i> 网站历史
+            </div>
+            <!-- .panel-heading -->
+            <div class="panel-body">
+                <div class="panel-group" id="accordion">                    
+                    @{int i = 1; }
+                    @foreach (var item in Model.History.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries).Reverse())
+                    {
+                        var _item = item.Trim(new char[] { '(', ')' }).Split(new string[] { "#####" }, StringSplitOptions.RemoveEmptyEntries);
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#@i">@_item[0]</a>
+                                    <div class="pull-right">
+                                        <small class="text-muted"><i class="fa fa-clock-o"></i> @DateTime.Parse(@_item[2]).ToShortDateString()</small>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (i == 1)
+                            {
+                                <div id="@(i++)" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        @Html.Raw(markDown.Transform(_item[1]))
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="@(i++)" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        @Html.Raw(markDown.Transform(_item[1]))
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <!-- .panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-8 -->
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="glyphicon glyphicon-paperclip fa-fw"></i> 站长介绍
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>描述</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>昵称</td>
+                                <td>@(ViewBag.NickName??"DepingDu")</td>
+                            </tr>
+                            <tr>
+                                <td>姓名</td>
+                                <td>@Model.Name</td>
+                            </tr>
+                            <tr>
+                                <td>籍贯</td>
+                                <td>@Model.OldAddress</td>
+                            </tr>
+                            <tr>
+                                <td>现居</td>
+                                <td>@Model.NowAddress</td>
+                            </tr>
+                            <tr>
+                                <td>职业</td>
+                                <td>@Model.Job</td>
+                            </tr>
+                            <tr>
+                                <td>喜欢的书</td>
+                                <td>@Model.LikeBook</td>
+                            </tr>
+                            <tr>
+                                <td>喜欢的音乐</td>
+                                <td>@Model.LikeMusic</td>
+                            </tr>
+                            <tr>
+                                <td>个人简介</td>
+                                <td>@Html.Raw(ViewBag.Introduce != null ? markDown.Transform(ViewBag.Introduce) : "")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <a href="/Cooperation/Contact" class="btn btn-default btn-block">给我写信</a>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-bullhorn fa-fw"></i> 公告
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>标题</th>
+                                <th>内容</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in (IEnumerable<ShareWeb.Models.Letter>)ViewBag.PublishNews)
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.Sub (@item.CreateTime.ToShortDateString())</td>
+                                    <td>
+                                        <a href="#" data-toggle="modal" data-target="#myModal@(item.Id)">
+                                            <i class="fa fa-eye fa-fw"></i>
+                                        </a>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="myModal@(item.Id)" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        <h4 class="modal-title" id="myModalLabel">公告详情 #@(item.Id)</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        @Html.Raw(markDown.Transform(item.Content))
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                                    </div>
+                                                </div>
+                                                <!-- /.modal-content -->
+                                            </div>
+                                            <!-- /.modal-dialog -->
+                                        </div>
+                                        <!-- /.modal -->
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-4 -->
+</div>

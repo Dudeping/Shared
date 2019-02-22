@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="一个前端、后端模板,原创程序,技术、生活、哲理博客,干货分享网">
+    <meta name="author" content="泸州-DepingDu">
+
+    <title>@ViewBag.Title</title>    
+    
+    @Styles.Render("~/Content/CommonCSS")
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="login-panel panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">@ViewBag.Title</h3>
+                    </div>
+                    <div class="panel-body">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p style="text-align: center; margin-bottom:5em;">
+        Copyright (C) 2016-@DateTime.Now.Year <a href="http://www.ydath.cn/" target="_blank">DepingDu</a>.<br /><a href="http://www.miitbeian.gov.cn/" target="_blank">蜀ICP备16013628号</a>
+    </p>
+
+    @Scripts.Render("~/Content/CommonJS")
+
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        (function(){
+            var bp = document.createElement('script');
+            var curProtocol = window.location.protocol.split(':')[0];
+            if (curProtocol === 'https') {
+                bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+            }
+            else {
+                bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+            }
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(bp, s);
+        })();
+        $(function () {
+            $(".verifyCode").click(function () {
+                $(".codePic").attr("src", "/Account/GetAuthCode?time=" + Math.random());
+                return false;
+            })
+        });
+    </script>
+
+</body>
+
+</html>

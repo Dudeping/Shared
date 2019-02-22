@@ -1,0 +1,194 @@
+﻿@model IEnumerable<ShareWeb.Models.Letter>
+@{
+    ViewBag.Title = "系统消息";
+    MarkdownSharp.Markdown markDown = new MarkdownSharp.Markdown();
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-bell-o fa-fw"></i> 消息
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#home" data-toggle="tab">未读消息</a>
+                    </li>
+                    <li>
+                        <a href="#profile" data-toggle="tab">已读消息</a>
+                    </li>
+                    <li>
+                        <a href="#messages" data-toggle="tab">重要消息</a>
+                    </li>
+                </ul>
+                <!-- Tab panes -->
+                <div class="tab-content">
+                    <br />
+                    <div class="tab-pane fade in active" id="home">
+                        <div class="panel-group" id="accordion">
+                            @foreach (var item in Model.Where(p => p.IsRead == false).OrderByDescending(p => p.Id))
+                            {
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse@(item.Id)">@item.Sub</a>
+                                            <div class="pull-right">
+                                                <small class="text-muted">
+                                                    <i class="fa fa-check"></i>
+                                                    @Ajax.ActionLink("标记已读", "TabIsLook", new { id = item.Id }, new AjaxOptions { HttpMethod = "Post", AllowCache = false, LoadingElementId = "handleDiv", LoadingElementDuration = 500, OnSuccess = "TabIsLookSuccess", OnFailure = "CoopperationFailure" })
+                                                    &nbsp;&nbsp;
+                                                    <i class="fa fa-plus-circle"></i>
+                                                    @Ajax.ActionLink("设为重要消息", "TabIsInportant", new { id = item.Id }, new AjaxOptions { HttpMethod = "Post", AllowCache = false, LoadingElementId = "handleDiv", LoadingElementDuration = 500, OnSuccess = "TabIsInportantSuccess", OnFailure = "CoopperationFailure" })
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="collapse@(item.Id)" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            @Html.Raw(markDown.Transform(item.Content))
+                                            <p class="text-right" style="margin: 0"><small>-- By @(item.From.NickName ?? item.From.Email)</small></p>
+                                            <p class="text-right" style="margin: 0"><small>@item.CreateTime.ToShortDateString()</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.Where(p => p.IsRead == false).Count() == 0)
+                            {
+                                <p style="color:red">
+                                    暂无未读消息!
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+
+
+                    <div class="tab-pane fade" id="profile">
+                        <div class="panel-group" id="accordionY">
+                            @foreach (var item in Model.Where(p => p.IsInportant == false && p.IsRead == true).OrderByDescending(p => p.Id))
+                            {
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordionY" href="#collapse@(item.Id)">@item.Sub</a>
+                                            <div class="pull-right">
+                                                <small class="text-muted">
+                                                    <i class="fa fa-trash-o"></i>
+                                                    @Ajax.ActionLink("删除", "DeleteNews", new { id = item.Id }, new AjaxOptions { HttpMethod = "Post", Confirm = "确定删除此消息么?", AllowCache = false, LoadingElementId = "handleDiv", LoadingElementDuration = 500, OnSuccess = "DeleteNewsSuccess", OnFailure = "CoopperationFailure" })
+                                                    &nbsp;&nbsp;
+                                                    <i class="fa fa-plus-circle"></i>
+                                                    @Ajax.ActionLink("设为重要消息", "TabIsInportant", new { id = item.Id }, new AjaxOptions { HttpMethod = "Post", AllowCache = false, LoadingElementId = "handleDiv", LoadingElementDuration = 500, OnSuccess = "TabIsInportantSuccess", OnFailure = "CoopperationFailure" })
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="collapse@(item.Id)" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            @Html.Raw(markDown.Transform(item.Content))
+                                            <p class="text-right" style="margin: 0"><small>-- By @(item.From.NickName ?? item.From.Email)</small></p>
+                                            <p class="text-right" style="margin: 0"><small>@item.CreateTime.ToShortDateString()</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.Where(p => p.IsInportant == false && p.IsRead == true).Count() == 0)
+                            {
+                                <p style="color:red">
+                                    暂无已读消息!
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="messages">
+                        <div class="panel-group" id="accordionZ">
+                            @foreach (var item in Model.Where(p => p.IsInportant == true).OrderByDescending(p => p.Id))
+                            {
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <div class="panel-title">
+                                            <a data-toggle="collapse" data-parent="#accordionZ" href="#collapse@(item.Id)">@item.Sub</a>
+                                            <div class="pull-right">
+                                                <small class="text-muted">
+                                                    <i class="fa fa-minus-circle"></i>
+                                                    @Ajax.ActionLink("移出重要消息", "TabNotInportant", new { id = item.Id }, new AjaxOptions { HttpMethod = "Post", AllowCache = false, LoadingElementId = "handleDiv", LoadingElementDuration = 500, OnSuccess = "TabNotInportantSuccess", OnFailure = "CoopperationFailure" })
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="collapse@(item.Id)" class="panel-collapse collapse">
+                                        <div class="panel-body">
+                                            @Html.Raw(markDown.Transform(item.Content))
+                                            <p class="text-right" style="margin: 0"><small>-- By @(item.From.NickName?? item.From.Email)</small></p>
+                                            <p class="text-right" style="margin: 0"><small>@item.CreateTime.ToShortDateString()</small></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.Where(p => p.IsInportant == true).Count() == 0)
+                            {
+                                <p style="color:red">
+                                    暂无重要消息!
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <!-- /.panel -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+
+    </div>
+    <!-- /.col-lg-8 -->
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="glyphicon glyphicon-paperclip fa-fw"></i> 温馨提示
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                null
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-4 -->
+</div>
+
+@section Scripts{
+
+@Scripts.Render("~/bundles/jqueryval")
+@Scripts.Render("~/bundles/modernizr")
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+
+<script>
+    function TabIsLookSuccess() {
+        alert("标记已读成功!");
+        location.href = "/Cooperation/SystemNews";
+    }
+
+    function TabIsInportantSuccess() {
+        alert("标记为重要消息成功!");
+        location.href = "/Cooperation/SystemNews";
+    }
+
+    function DeleteNewsSuccess() {
+        alert("删除消息成功!");
+        location.href = "/Cooperation/SystemNews";
+    }
+
+    function CoopperationFailure() {
+        alert("操作失败!请重试.");
+    }
+
+    function TabNotInportantSuccess() {
+        alert("移除重要消息成功!");
+        location.href = "/Cooperation/SystemNews";
+    }
+</script>
+}

@@ -1,0 +1,152 @@
+﻿@model ShareWeb.Models.WebHistory
+@{
+    ViewBag.Title = "网站历史";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    MarkdownSharp.Markdown markDown = new MarkdownSharp.Markdown();
+}
+
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-wrench fa-fw"></i> 编辑网站历史
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <button type="button" class="btn btn-outline btn-success btn-sm" data-toggle="modal" data-target="#myModal0">添加</button>
+                <!-- Modal -->
+                <div class="modal fade" id="myModal0" tabindex="-1" role="dialog" aria-labelledby="myModalLabel0" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="myModalLabel0">添加历史</h4>
+                            </div>
+                            @using (Html.BeginForm("AddHistory", "Admin", FormMethod.Post, new { role = "form" }))
+                            {
+                                <div class="modal-body">
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Version)
+                                        @Html.EditorFor(model => model.Version, new { htmlAttributes = new { @class = "form-control", placeholder = "版本" } })
+                                        @Html.ValidationMessageFor(model => model.Version, "", new { @class = "text-danger" })
+                                    </div>
+
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Content)
+                                        @Html.TextAreaFor(model => model.Content, 6, 10, new { @class = "form-control", placeholder = "内容" })
+                                        @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+                                    </div>
+
+                                    <div class="form-group">
+                                        @Html.LabelFor(model => model.Code)
+                                        @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", placeholder = "验证码" } })
+                                        @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger" })
+                                    </div>
+
+                                    <div class="form-group">
+                                        <img class="codePic" src="/Account/GetAuthCode" width="100" height="30">
+                                        &nbsp;&nbsp;看不清? <a href="#" class="verifyCode">换一张!</a>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <input type="submit" value="提交" class="btn btn-outline btn-info btn-sm" />
+                                    <button type="button" id="addHistoryClose" class="btn btn-default btn-sm" data-dismiss="modal">关闭</button>
+                                </div>
+                            }
+                        </div>
+                        <!-- /.modal-content -->
+                    </div>
+                </div>
+                <br />
+                <br />
+                <div class="panel-group" id="accordion">
+                    @{ int i = 1;}
+                    @foreach (var item in ((IEnumerable<ShareWeb.Models.WebHistory>)ViewBag.HistoryList).OrderByDescending(p => p.CreateTime))
+                    {
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse@(i)">@item.Version</a>
+
+                                    <div class="pull-right">
+                                        <a href="@Url.Action("EditHistory", "Admin", new { version = item.Version })"><i class="fa fa-edit fa-fw"></i></a>
+
+                                        @Ajax.ActionLink("1", "DeleteHistory", "Admin", new { version = item.Version }, new AjaxOptions { AllowCache = false, Confirm = "你确定要删除该历史记录么?", HttpMethod = "Post", LoadingElementDuration = 500, LoadingElementId = "handleDiv", OnFailure = "DeleteHistoryFailure", OnSuccess = "DeleteHistorySuccess" }, new { @class = "aText" })
+
+                                        <small class="text-muted">
+                                            <i class="fa fa-clock-o"></i> @item.CreateTime.ToShortDateString()
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (i == 1)
+                            {
+                                <div id="collapse@(i++)" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        @Html.Raw(markDown.Transform(item.Content))
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div id="collapse@(i++)" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        @Html.Raw(markDown.Transform(item.Content))
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+    </div>
+    <!-- /.col-lg-8 -->
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="glyphicon glyphicon-paperclip fa-fw"></i> 温馨提示
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                支持MarkDown语法；<br />
+                新建历史信息时,请复制版本内容后再提交,防止未创建成功时页面刷新信息丢失！
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-4 -->
+</div>
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    
+
+    @if(ViewBag.JS != null)
+    {
+        <script>
+            alert(@ViewBag.Js);
+        </script>
+    }
+
+    <script>
+        function DeleteHistoryFailure() {
+            alert("操作失败!请重试.");
+        }
+
+        function DeleteHistorySuccess() {
+            alert("删除成功!");
+            location.href = '/Admin/ShareWebHistory';
+        }
+        $(function () {
+            $(".aText").html("<i class=\"fa fa-trash-o fa-fw\"></i>");
+        });
+    </script>
+}

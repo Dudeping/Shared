@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Date Share, 一个前端、后端模板,原创程序,技术、生活、哲理博客,干货分享网">
+    <meta name="author" content="泸州-DepingDu">
+
+    <title>Date Share--一个持续更新的专门做分享的网站</title>
+
+    @Styles.Render("~/Content/CommonCSS")
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/">Date Share</a>
+            </div>
+            <!-- /.navbar-header -->
+            <ul class="nav navbar-top-links navbar-right">
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    @if (Request.IsAuthenticated)
+                    {
+                        <ul class="dropdown-menu dropdown-user">
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                <li><a href="/Admin" target="_blank"><i class="fa fa-dashboard fa-fw"></i> 网站后台</a></li>
+                            }
+                            <li><a href="/Account/EditNews"><i class="fa fa-user fa-fw"></i> 个人信息</a></li>
+                            <li><a href="/Account/ChangePassword"><i class="fa fa-gear fa-fw"></i> 更改密码</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/Account/Logout"><i class="fa fa-sign-out fa-fw"></i> 注销</a></li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="/Account/Login"><i class="fa fa-sign-in fa-fw"></i> 登录</a></li>
+                        </ul>
+                    }
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li class="sidebar-search">
+                            @using (Html.BeginForm("SearchList", "ShowShare", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <div class="input-group custom-search-form">
+                                    <input type="text" class="form-control" name="SearchStr" placeholder="请输入项目名称进行搜索">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="submit">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            }
+                            <!-- /input-group -->
+                        </li>
+                        <li>
+                            <a href="/"><i class="fa fa-home fa-fw"></i> 网站首页</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-coffee fa-fw"></i> 查看分享<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                @{
+                                    ShareWeb.Models.ShareWebContext db = new ShareWeb.Models.ShareWebContext();
+                                    var shareList = db.Categories.OrderByDescending(p => p.Name.Length).ToList();
+                                }
+                                @foreach (var item in shareList)
+                                {
+                                    <li>
+                                        <a href="/ShowShare/ShareList/@item.Name">@item.Name</a>
+                                    </li>
+                                }
+                                @*载入片段，当显示搜索结果和查看模板详情的时候载入*@
+                                @RenderSection("SearchAndDetail", required: false)
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+
+                        @if (Request.IsAuthenticated && User.IsInRole("User"))
+                        {
+                            var newsNum = db.Letters.Where(x => x.IsRead == false && x.To == User.Identity.Name).Count();
+                            if (newsNum > 0)
+                            {
+                                <li>
+                                    <a href="#"><i class="fa fa-envelope fa-fw"></i> 合作交流<span class="label label-success pull-right">@newsNum</span></a>
+                                    <ul class="nav nav-second-level">
+                                        <li>
+                                            <a href="/Cooperation/Contact">联系站长</a>
+                                        </li>
+                                        <li>
+                                            <a href="/Cooperation/FeedBack">问题反馈</a>
+                                        </li>
+                                        <li>
+                                            @{
+                                                //TODO:对于角色为站长的只显示公告信息
+                                            }
+                                            <a href="/Cooperation/SystemNews">系统消息<span class="label label-success pull-right">@newsNum</span></a>
+                                        </li>
+                                    </ul>
+                                    <!-- /.nav-second-level -->
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    <a href="#"><i class="fa fa-envelope fa-fw"></i> 合作交流<span class="fa arrow"></span></a>
+                                    <ul class="nav nav-second-level">
+                                        <li>
+                                            <a href="/Cooperation/Contact">联系站长</a>
+                                        </li>
+                                        <li>
+                                            <a href="/Cooperation/FeedBack">问题反馈</a>
+                                        </li>
+                                        <li>
+                                            <a href="/Cooperation/SystemNews">系统消息</a>
+                                        </li>
+                                    </ul>
+                                    <!-- /.nav-second-level -->
+                                </li>
+                            }
+                        }
+                        else if (User.IsInRole("User"))
+                        {
+                            <li>
+                                <a href="#"><i class="fa fa-envelope fa-fw"></i> 合作交流<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li>
+                                        <a href="/Cooperation/Contact">联系站长</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Cooperation/FeedBack">问题反馈</a>
+                                    </li>
+                                </ul>
+                                <!-- /.nav-second-level -->
+                            </li>
+                        }
+
+                        @if (Request.IsAuthenticated)
+                        {
+                            <li>
+                                <a href="#"><i class="glyphicon glyphicon-open fa-fw"></i> 上传分享<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li>
+                                        <a href="/UploadShare/CategoryList">管理类别</a>
+                                    </li>
+                                    <li>
+                                        <a href="/UploadShare/ShareList">管理分享</a>
+                                    </li>
+                                    @RenderSection("ShareList", required: false)
+                                </ul>
+                                <!-- /.nav-second-level -->
+                            </li>
+                            <li>
+                                <a href="#"><i class="fa fa-gear fa-fw"></i> 个人设置<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li>
+                                        <!--仅能管理自己的建立的类别-->
+                                        <a href="/Account/ChangePassword">修改密码</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Account/EditNews">个人信息</a>
+                                    </li>
+                                </ul>
+                                <!-- /.nav-second-level -->
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a href="/Account/Register"><i class="glyphicon glyphicon-open fa-fw"></i> 上传分享</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">@Html.Raw(ViewBag.Title) @RenderSection("Button", required: false)</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row" id="handleDiv" hidden="hidden">
+                <div class="col-lg-12">
+                    <p style="text-align:center; color:red">处理中...</p>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            @RenderBody()
+            <!-- /.row -->
+            <div class="row" style="border: none; margin: 1em 0 1em 0; text-align: center">
+                © 2017 Powered by DepingDu
+            </div>
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    @Scripts.Render("~/Content/CommonJS")
+
+    @RenderSection("Scripts", required: false)
+    <script>
+        (function(){
+            var bp = document.createElement('script');
+            var curProtocol = window.location.protocol.split(':')[0];
+            if (curProtocol === 'https') {
+                bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+            }
+            else {
+                bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+            }
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(bp, s);
+        })();
+        $(function () {
+            $(".verifyCode").click(function () {
+                $(".codePic").attr("src", "/Account/GetAuthCode?time=" + Math.random());
+                return false;
+            })
+        });
+    </script>
+</body>
+
+</html>

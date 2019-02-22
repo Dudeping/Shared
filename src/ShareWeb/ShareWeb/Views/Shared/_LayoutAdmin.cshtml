@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Date Share, 一个前端、后端模板,原创程序,技术、生活、哲理博客,干货分享网">
+    <meta name="author" content="泸州-DepingDu">
+
+    <title>Date Share--一个持续更新的专门做分享的网站</title>
+
+    <style type="text/css">
+        .FromRight {
+            float: left;
+        }
+    </style>
+
+    @Styles.Render("~/Content/CommonCSS")
+
+    @RenderSection("ChartsFrontJs", required: false)
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    @Scripts.Render("~/bundles/modernizr")
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/Admin">Date Share 后台管理</a>
+            </div>
+            <!-- /.navbar-header -->
+
+            <ul class="nav navbar-top-links navbar-right">
+                <!-- /.dropdown -->
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                        <li><a href="/" target="_blank"><i class="fa fa-home fa-fw"></i> 网站前台</a></li>
+                        <li><a href="/Admin/WebMasterNews"><i class="fa fa-user fa-fw"></i> 站长信息</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/Account/Logout"><i class="fa fa-sign-out fa-fw"></i> 注销</a>
+                    </ul>
+                    <!-- /.dropdown-user -->
+                    <!-- /.dropdown-user -->
+                </li>
+                <!-- /.dropdown -->
+            </ul>
+            <!-- /.navbar-top-links -->
+
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+                        <li class="sidebar-search">
+                            @using (Html.BeginForm("SearchList", "ShowShare", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                <div class="input-group custom-search-form">
+                                    <input type="text" class="form-control" name="SearchStr" placeholder="请输入项目名称进行搜索">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="submit">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            }
+                            <!-- /input-group -->
+                        </li>
+                        <li>
+                            <a href="/Admin"><i class="fa fa-dashboard fa-fw"></i> 网站首页</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="fa fa-wrench fa-fw"></i> 设置中心<span class="fa arrow"></span></a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a href="/Admin/WebMasterNews">站长信息</a>
+                                </li>
+                                <li>
+                                    <a href="/Admin/ShareWebNews">网站信息</a>
+                                </li>
+                                <li>
+                                    <a href="/Admin/ShareWebHistory">网站历史</a>
+                                </li>
+                                @RenderSection("History", required: false)
+                            </ul>
+                            <!-- /.nav-second-level -->
+                        </li>
+                        @{
+                            ShareWeb.Models.ShareWebContext db = new ShareWeb.Models.ShareWebContext();
+                            int newsNum = db.Letters.Where(p => p.To == User.Identity.Name && p.Type != ShareWeb.Models.LetterType.system.ToString() && p.Reply == null).Count();
+                        }
+                        @if (newsNum > 0)
+                        {
+                            <li>
+                                <a href="#"><i class="fa fa-envelope fa-fw"></i> 联系反馈<span class="label label-success pull-right">@newsNum</span></a>
+                                <ul class="nav nav-second-level">
+                                    <li>
+                                        <a href="/Admin/ContactList">联系反馈<span class="label label-success pull-right">@newsNum</span></a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/PublishNews">发布公告</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/ReleaseLetter">发送私信</a>
+                                    </li>
+                                    @RenderSection("Reply", required: false)
+                                </ul>
+                                <!-- /.nav-second-level -->
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                <a href="#"><i class="fa fa-envelope fa-fw"></i> 联系反馈<span class="fa arrow"></span></a>
+                                <ul class="nav nav-second-level">
+                                    <li>
+                                        <a href="/Admin/ContactList">联系反馈</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/PublishNews">发布公告</a>
+                                    </li>
+                                    <li>
+                                        <a href="/Admin/ReleaseLetter">发送私信</a>
+                                    </li>
+                                    @RenderSection("Reply", required: false)
+                                </ul>
+                                <!-- /.nav-second-level -->
+                            </li>
+                        }
+                        <li>
+                            <a href="/Admin/AuthorList"><i class="fa fa-sitemap fa-fw"></i> 作者管理</a>
+                        </li>
+                        <li>
+                            <a href="/Admin/WebLog"><i class="fa fa-table fa-fw"></i> 查看日志</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">@Html.Raw(ViewBag.Title) @RenderSection("Button", required: false)</h1>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            <div class="row" id="handleDiv" hidden="hidden">
+                <div class="col-lg-12">
+                    <p style="text-align:center; color:red">处理中...</p>
+                </div>
+                <!-- /.col-lg-12 -->
+            </div>
+            <!-- /.row -->
+            @RenderBody()
+            <!-- /.row -->
+            <div class="row" style="border: none; margin: 1em 0 1em 0; text-align: center">
+                © 2017 Powered by DepingDu
+            </div>
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    @Scripts.Render("~/Content/CommonJS")
+
+    @RenderSection("ChartsJS", required: false)
+
+    @RenderSection("Scripts", required: false)
+
+    <script>
+        $(function () {
+            $(".verifyCode").click(function () {
+                $(".codePic").attr("src", "/Account/GetAuthCode?time=" + Math.random());
+                return false;
+            })
+        })
+    </script>
+</body>
+
+</html>

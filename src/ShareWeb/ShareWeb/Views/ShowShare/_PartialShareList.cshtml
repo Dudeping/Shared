@@ -1,0 +1,82 @@
+﻿@model PagedList.IPagedList<ShareWeb.Models.ShareModel>
+
+@{ int i = 0; string _color = "";}
+
+@foreach (var item in Model)
+{
+    <div class="col-lg-6">
+        @if (i % 6 == 0)
+        {
+            _color = "panel-success";
+        }
+        else if (i % 6 == 1)
+        {
+            _color = "panel-info";
+        }
+        else if (i % 6 == 2)
+        {
+            _color = "panel-warning";
+        }
+        else if (i % 6 == 3)
+        {
+            _color = "panel-danger";
+        }
+        else if (i % 6 == 4)
+        {
+            _color = "panel-green";
+        }
+        else
+        {
+            _color = "panel-yellow";
+        }
+
+        @{
+            i = i + 1;
+        }
+        <div class="panel @_color">
+            <div class="panel-heading">
+                @item.Name
+            </div>
+            <div class="panel-body">
+                <p>
+                    简介：<br />
+                    @if (item.Introduce.Length > 100)
+                    {
+                        @Html.Raw(item.Introduce.Substring(0, 100) + "......")
+                    }
+                    else
+                    {
+                        @Html.Raw(item.Introduce)
+                    }
+                </p>
+                <a href="@Url.Action("ShareDetail","ShowShare", new { id = item.Id })" class="btn btn-default btn-block">查看详情</a>
+            </div>
+            <div class="panel-footer">
+                <small class="text-muted">
+                    <i class="fa fa-eye"></i> @item.Look &nbsp;&nbsp;&nbsp;
+                    <i class="glyphicon glyphicon-download-alt"></i> @item.Download &nbsp;&nbsp;&nbsp;
+                    <i class="fa fa-edit"></i> @item.Editor.NickName &nbsp;&nbsp;&nbsp;
+                    <i class="fa fa-clock-o"></i> @item.CreateTime.ToShortDateString()
+                </small>
+            </div>
+        </div>
+    </div>
+}
+
+@if (Model.Count() == 0)
+{
+    <p style="color:red; padding-left:15px;">该类别暂无分享</p>
+}
+else
+{
+    <div class="col-lg-12">
+        @if (String.IsNullOrWhiteSpace(ViewBag.SearchStr))
+        {
+            @Html.PagedListPager(Model, page => Url.Action("ShareList", new { page, id = ViewBag.Title}), PagedListRenderOptions.OnlyShowFivePagesAtATime)
+        }
+        else
+        {
+            @Html.PagedListPager(Model, page => Url.Action("SearchList", new { page, searchStr = ViewBag.SearchStr }), PagedListRenderOptions.OnlyShowFivePagesAtATime)
+        }
+    </div>
+}

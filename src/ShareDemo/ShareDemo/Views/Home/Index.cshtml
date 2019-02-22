@@ -1,0 +1,16 @@
+﻿@model ShareDemo.Models.ShareModel
+@{
+    ViewBag.Title = Model.Name == "Holle Word" ? "Index" : Model.Name;
+}
+
+<div class="row1">
+    <h1>@Model.Name</h1>
+    <p>@Model.Decription</p>
+</div>
+
+@foreach (var item in Model.Link)
+{
+    <div class="row2">
+        <input type="submit" value="@item.LinkText" onclick="location.href = '@item.LinkSrc';" />
+    </div>
+}

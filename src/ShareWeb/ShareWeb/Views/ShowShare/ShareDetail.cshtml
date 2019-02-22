@@ -1,0 +1,192 @@
+﻿@model ShareWeb.Models.ShareModel
+@{
+    ViewBag.Title = Model.Name;
+    MarkdownSharp.Markdown markDown = new MarkdownSharp.Markdown();
+}
+
+@section SearchAndDetail{
+    <li>
+        <a href="@Url.Action("ShareDetail","ShowShare", new { id = Model.Id })">分享详情</a>
+    </li>
+}
+
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-list-alt fa-fw"></i> 模板详情
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+
+                <blockquote>
+                    <strong>模板名称</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    @Model.Name
+                </p>
+                <br />
+                <blockquote>
+                    <strong>模板类型</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    @Model.Category.Name
+                </p>
+                <br />
+                <blockquote>
+                    <strong>简单介绍</strong>
+                </blockquote>
+                <div style="margin: 25px">
+                    @Html.Raw(markDown.Transform(Model.Introduce))
+                </div>
+                <br />
+                <blockquote>
+                    <strong>应用场景</strong>
+                </blockquote>
+                <div style="margin: 25px">
+                    @Html.Raw(markDown.Transform(Model.Apply))
+                </div>
+                <br />
+                <blockquote>
+                    <strong>开发工具</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    @Html.Raw(markDown.Transform(Model.Tool))
+                </p>
+                <br />
+                <blockquote>
+                    <strong>技术亮点</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    @Html.Raw(markDown.Transform(Model.Skill))
+                </p>
+                <br />
+                <blockquote>
+                    <strong>部署环境</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    @Html.Raw(markDown.Transform(Model.Deploy))
+                </p>
+                <br />
+                <blockquote>
+                    <strong>效果图</strong>
+                </blockquote>
+                <p style="margin: 25px;">
+                    <img src="@Model.ResultPic.TrimStart('~')" width="100%">
+                </p>
+                <br />
+                <blockquote>
+                    <strong>示例地址</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    <a target="_blank" href="@Model.DemoAddress">@Model.DemoAddress</a>
+                </p>
+                <br />
+                <blockquote>
+                    <strong>源码下载</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    <a target="_blank" onclick="AddDownload(@Model.Id)" href="@Model.CodeAddress.TrimStart('~')">下载</a>
+                </p>
+                <br />
+                <blockquote>
+                    <strong>GitHub地址</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    <a target="_blank" href="@Model.GitHubAddress">@Model.GitHubAddress</a>
+                </p>
+                <br />
+                <blockquote>
+                    <strong>原网址</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    <a target="_blank" href="@Model.OldAddress">@Model.OldAddress</a>
+                </p>
+                <br />
+                <blockquote>
+                    <strong>作者</strong>
+                </blockquote>
+                <p style="margin: 25px">
+                    @(Model.Author)
+                </p>
+                <br />
+            </div>
+            <!-- /.panel-body -->
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="glyphicon glyphicon-paperclip fa-fw"></i> 上传者信息
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>描述</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="success">
+                                <td>昵称</td>
+                                <td>@Model.Editor.NickName</td>
+                            </tr>
+                            <tr class="info">
+                                <td>简介</td>
+                                <td>@Html.Raw(Model.Editor.Introduce == null ? "" : markDown.Transform(Model.Editor.Introduce))</td>
+                            </tr>
+                            <tr class="warning">
+                                <td>QQ</td>
+                                <td>@Model.Editor.QQ</td>
+                            </tr>
+                            <tr class="success">
+                                <td>邮箱</td>
+                                <td>@Model.Editor.Email</td>
+                            </tr>
+                            <tr class="info">
+                                <td>电话</td>
+                                <td>@Model.Editor.Tel</td>
+                            </tr>
+                            <tr class="warning">
+                                <td>微信</td>
+                                <td>@Model.Editor.WeChat</td>
+                            </tr>
+                            <tr class="success">
+                                <td>微博</td>
+                                <td><a href="@Model.Editor.MicroBlog" target="_blank">@Model.Editor.MicroBlog</a></td>
+                            </tr>
+                            <tr class="info">
+                                <td>博客</td>
+                                <td><a href="@Model.Editor.Blog" target="_blank">@Model.Editor.Blog</a></td>
+                            </tr>
+                            <tr class="warning">
+                                <td>GitHub</td>
+                                <td><a href="@Model.Editor.GitHub" target="_blank">@Model.Editor.GitHub</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-4 -->
+</div>
+
+@section Scripts{
+    <script>
+        function AddDownload(id) {
+            $.post({
+                url: "/ShowShare/AddDownload/"+id
+            });
+        }
+    </script>
+}
+

@@ -1,0 +1,187 @@
+﻿
+@{
+    ViewBag.Title = "后台首页";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section ChartsFrontJs{
+    @* HighCharts *@
+    <script src="https://img.hcharts.cn/highcharts/highcharts.js"></script>
+    <script src="https://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+    <script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+    <style type="text/css">
+        .highcharts-credits{
+            display:none;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-green">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-laptop fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge">@ViewBag.NewAdd</div>
+                        <div>新增分享</div>
+                    </div>
+                </div>
+            </div>
+            <a href="/Admin/WebLog?type=add">
+                <div class="panel-footer">
+                    <span class="pull-left">查看详情</span>
+                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-yellow">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-cloud-download fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge">@ViewBag.NewDownLoad</div>
+                        <div>新增下载</div>
+                    </div>
+                </div>
+            </div>
+            <a href="/Admin/WebLog?type=download">
+                <div class="panel-footer">
+                    <span class="pull-left">查看详情</span>
+                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-bell-o fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge">@ViewBag.NewContact</div>
+                        <div>合作交流</div>
+                    </div>
+                </div>
+            </div>
+            <a href="/Admin/ContactList">
+                <div class="panel-footer">
+                    <span class="pull-left">查看详情</span>
+                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="panel panel-red">
+            <div class="panel-heading">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <i class="fa fa-comments fa-5x"></i>
+                    </div>
+                    <div class="col-xs-9 text-right">
+                        <div class="huge">@ViewBag.NewError</div>
+                        <div>运行错误</div>
+                    </div>
+                </div>
+            </div>
+            <a href="/Admin/WebLog?type=error">
+                <div class="panel-footer">
+                    <span class="pull-left">查看详情</span>
+                    <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+<!-- /.row -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-bar-chart-o fa-fw"></i> 统计结果
+                <div class="pull-right">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                            选择时间
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu pull-right" role="menu">
+                            <li>
+                                <a href="/Admin?date=10">10天</a>
+                            </li>
+                            <li>
+                                <a href="/Admin?date=15">15天</a>
+                            </li>
+                            <li>
+                                <a href="/Admin?date=30">30天</a>
+                            </li>
+                            <li>
+                                <a href="/Admin?date=30">60天</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div id="container" style="width:99%"></div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+
+@section ChartsJS{
+    <script type="text/javascript">
+        var chart = new Highcharts.Chart('container', {
+            title: {
+                text: '浏览量和下载量',
+                x: -20
+            },
+            xAxis: {
+                categories: [@(Html.Raw(ViewBag.xDataTime))]
+            },
+            yAxis: {
+                title: {
+                    text: '次数'
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: '次'
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle',
+                borderWidth: 0
+            },
+            series: [{
+                name: '浏览',
+                data: [@(ViewBag.TotalLook)]
+            }, {
+                name: '下载',
+                data: [@(ViewBag.TotalDownLoad)]
+                }]
+        });
+    </script>
+}

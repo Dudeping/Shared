@@ -1,0 +1,132 @@
+﻿@model ShareWeb.Models.CategoryModel
+@{
+    var CategoryList = (IPagedList<ShareWeb.Models.Category>)ViewBag.CategoryList;
+    ViewBag.Title = "管理类别 ";
+}
+@section Button{
+    <button type="button" class="btn btn-outline btn-success btn-xs" data-toggle="modal" data-target="#myModal1">添加</button>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">添加类别</h4>
+            </div>
+            @using (Html.BeginForm("AddCategory", "UploadShare", FormMethod.Post, new { role = "form" }))
+            {
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Name, new { style="font-size:16px;" })
+                        @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", placeholder = "名称" } })
+                        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger", style = "font-size:14px;" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Code, new { style = "font-size:16px;" })
+                        @Html.EditorFor(model => model.Code, new { htmlAttributes = new { @class = "form-control", placeholder = "验证码" } })
+                        @Html.ValidationMessageFor(model => model.Code, "", new { @class = "text-danger", style = "font-size:14px;" })
+                    </div>
+
+                    <div class="form-group" style="font-size:14px; font-weight:300">
+                        <img class="codePic" src="/Account/GetAuthCode" width="100" height="30">
+                        &nbsp;&nbsp;看不清? <a href="#" class="verifyCode">换一张!</a>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-outline btn-info btn-sm" value="提交" />
+                    <button type="button" id="addCategoryClose" class="btn btn-default btn-sm" data-dismiss="modal">关闭</button>
+                </div>
+            }
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+    </div>
+}
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-list fa-fw"></i> 类别列表
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>名称</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in CategoryList) 
+                            {
+                                <tr>
+                                    <td>@item.Id</td>
+                                    <td>@item.Name</td>
+                                    <td>
+                                        <a href="/UploadShare/EditCategory/@(item.Id)"><i class="fa fa-edit fa-fw"></i></a>
+                                        @Ajax.ActionLink("1", "DeleteCategory", new { id = item.Id}, new AjaxOptions { AllowCache = false, Confirm = "你确定删除该类别么?", HttpMethod = "Post", LoadingElementDuration = 500, LoadingElementId = "handleDiv", OnFailure = "DeleteCategoryFailure", OnSuccess = "DeleteCategorySuccess" }, new { @class = "aText" })
+                                    </td>
+                                </tr>
+                            }
+                            @if(CategoryList.Count() == 0)
+                            {
+                                <tr>
+                                    <td colspan="3" style="color:red; text-align:center;">暂未添加类别</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        @if (CategoryList.Count() != 0)
+        {
+            @Html.PagedListPager(CategoryList, page => Url.Action("CategoryList", new { page }), PagedListRenderOptions.OnlyShowFivePagesAtATime)
+        }
+    </div>
+    <!-- /.col-lg-8 -->
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="glyphicon glyphicon-paperclip"></i> 说明
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                每人只能管理自己创建的类别!
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-4 -->
+</div>
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        function DeleteCategoryFailure() {
+            alert("操作失败!请重试.");
+        }
+        function DeleteCategorySuccess() {
+            alert("删除成功!");
+            location.href = "/UploadShare/CategoryList";
+        }
+    </script>
+
+    <script>
+        $(function () {
+            $(".aText").html("<i class=\"fa fa-trash-o fa-fw\"></i>");
+        });
+    </script>
+}

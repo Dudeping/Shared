@@ -1,0 +1,243 @@
+﻿@model IEnumerable<ShareWeb.Models.Letter>
+@{
+    ViewBag.Title = "联系 & 反馈";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    MarkdownSharp.Markdown markDown = new MarkdownSharp.Markdown();
+
+}
+
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-list fa-fw"></i> 联系列表
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>用户名</th>
+                                <th>主题</th>
+                                <th>类别</th>
+                                <th>&nbsp;操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    @if (item.Reply == null)
+                                    {
+                                        <td style="color:red;">@item.Id</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.Id</td>
+                                    }
+                                    <td>@item.From.Email</td>
+                                    <td>@item.Sub</td>
+                                    @if (item.Type == ShareWeb.Models.LetterType.contact.ToString())
+                                    {
+                                        <td>联系站长</td>
+                                    }
+                                    else
+                                    {
+                                        <td>问题反馈</td>
+                                    }
+                                    <td>
+                                        <a href="#" data-toggle="modal" data-target="#user@(item.Id)"><i class="fa fa-user fa-fw"></i></a>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="user@(item.Id)" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        <h4 class="modal-title" id="myModalLabel">作者详情 #1</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-hover">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th>名称</th>
+                                                                        <th>描述</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td>简介</td>
+                                                                        <td>@Html.Raw(item.From.Introduce == null ? "" : markDown.Transform(item.From.Introduce))</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>QQ</td>
+                                                                        <td>@item.From.QQ</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Tel</td>
+                                                                        <td>@item.From.Tel</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>微信</td>
+                                                                        <td>@item.From.WeChat</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>微博</td>
+                                                                        <td><a href="@item.From.MicroBlog" target="_blank">@item.From.MicroBlog</a></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>博客</td>
+                                                                        <td><a href="@item.From.Blog" target="_blank">@item.From.Blog</a></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>GitHub</td>
+                                                                        <td><a href="@item.From.GitHub" target="_blank">@item.From.GitHub</a></td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">关闭</button>
+                                                    </div>
+                                                </div>
+                                                <!-- /.modal-content -->
+                                            </div>
+                                            <!-- /.modal-dialog -->
+                                        </div>
+
+                                        <a href="#" data-toggle="modal" data-target="#content@(item.Id)"><i class="fa fa-eye fa-fw"></i></a>
+                                        <!-- Modal -->
+                                        <div class="modal fade" id="content@(item.Id)" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        <h4 class="modal-title" id="myModalLabel">内容详情 #@(item.Id)</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>@Html.Raw(markDown.Transform(item.Content))</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">关闭</button>
+                                                    </div>
+                                                </div>
+                                                <!-- /.modal-content -->
+                                            </div>
+                                            <!-- /.modal-dialog -->
+                                        </div>
+                                        @if(item.Reply == null)
+                                        {
+                                            <a href="@Url.Action("Reply","Admin", new { id = item.Id })"><i class="fa fa-share-square-o fa-fw"></i></a>
+                                        }
+                                        else
+                                        {
+                                            <a href="#" data-toggle="modal" data-target="#reply@(item.Id)"><i class="fa fa-share-square-o fa-fw"></i></a>
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="reply@(item.Id)" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                            <h4 class="modal-title" id="myModalLabel">回复内容 #@(item.Id)</h4>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>名称</th>
+                                                                            <th>描述</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td>主题</td>
+                                                                            <td>@item.Reply.Split(new string[] { "#####" }, StringSplitOptions.RemoveEmptyEntries)[0]</td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <td>内容</td>
+                                                                            <td>@Html.Raw(markDown.Transform(item.Reply.Split(new string[] { "#####" }, StringSplitOptions.RemoveEmptyEntries)[1]))</td>
+                                                                        </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">关闭</button>
+                                                        </div>
+                                                    </div>
+                                                    <!-- /.modal-content -->
+                                                </div>
+                                                <!-- /.modal-dialog -->
+                                            </div>
+                                        }
+                                        @Ajax.ActionLink("1", "DeleteContact", new { id = item.Id }, new AjaxOptions { AllowCache = false, Confirm = "你确定要删除该消息么?", HttpMethod = "Post", LoadingElementDuration = 500, LoadingElementId = "handleDiv", OnFailure = "DeleteContactFailure", OnSuccess = "DeleteContactSuccess" }, new { @class = "aText" })
+                                    </td>
+                                </tr>
+                            }
+                            @if (Model.Count() == 0)
+                            {
+                                <tr>
+                                    <td style="color:red; text-align:center;" colspan="5">暂无消息</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="fa fa-envelope fa-fw"></i> 发公告
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <a href="/Admin/PublishNews">发布公告</a>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <i class="glyphicon glyphicon-paperclip fa-fw"></i> 说明
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                null
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+</div>
+
+@section Scripts{
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <script>
+        $(function () {
+            $(".aText").html("<i class=\"fa fa-trash-o fa-fw\"></i>");
+        });
+        function Apply(id) {
+            swal({ title: "成功", text: "回复消息成功!", type: "success" }, function () {
+                $("#ApplyClose").focus().click();
+            })
+        }
+
+        function DeleteContactFailure() {
+            alert('操作失败!请重试.');
+        }
+
+        function DeleteContactSuccess() {
+            alert('删除成功!');
+            location.href = '/Admin/ContactList';
+        }
+    </script>
+}
